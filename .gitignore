@@ -1,0 +1,62 @@
+# Ignore build artifacts
+bin/
+obj/
+
+# Ignore local configuration files
+appsettings.json
+appsettings.*.json
+
+# Ignore user-specific files
+.vs/
+*.user
+*.suo
+
+# Ignore NuGet packages
+packages/
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+# Ignore test results
+TestResults/
+
+# Ignore local development files
+*.db
+*.log
+*.tmp
+
+# Ignore Rider-specific files
+*.sln.iml
+*.DotSettings
+
+# Ignore Visual Studio cache files
+.vs/
+*.csproj.user
+*.csproj.*.user
+
+# Ignore Azure Functions local settings
+local.settings.json
+
+# Ignore Docker files
+docker-compose.override.yml
+
+# Ignore Rider/ReSharper cache
+_ReSharper.*/
+*.DotSettings.user
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore Node.js files (if applicable)
+node_modules/
+npm-debug.log
+
+# Ignore Python files (if applicable)
+__pycache__/
+*.pyc
+
+# Ignore compiled files
+*.dll
+*.pdb
+*.exe
