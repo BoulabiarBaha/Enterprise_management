@@ -60,12 +60,33 @@ namespace Myapp.Users
         {
             return await _users.Find<User>(user => user.Email == email).FirstOrDefaultAsync();
         }
+        
         // Update a user
-        public async Task UpdateUserAsync(Guid id, User user) =>
+        public async Task UpdateUserAsync(Guid id, User user)
+        {
+            // Get the existing user
+            var existingUser = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+            if (existingUser == null)
+            {
+                throw new Exception("User not found.");
+            }
+            //update the user
             await _users.ReplaceOneAsync(user => user.Id == id, user);
+        }
+            
 
         // Delete a user
-        public async Task DeleteUserAsync(Guid id) =>
+        public async Task DeleteUserAsync(Guid id) 
+        {
+            // Get the existing user
+            var existingUser = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+            if (existingUser == null)
+            {
+                throw new Exception("User not found.");
+            }
+            //Delete the user
             await _users.DeleteOneAsync(user => user.Id == id);
+        }
+            
     }
 }

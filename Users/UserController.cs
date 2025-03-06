@@ -91,13 +91,14 @@ namespace Myapp.Users
         // POST: api/users
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<UserDTO>>> CreateUser(User user)
+        public async Task<ActionResult<ApiResponse<UserDTO>>> CreateUser([FromBody] User user)
         {
             try{
                 _logger.LogInformation("POST /api/users called");
                 user.Id = Guid.NewGuid(); // Generate a new GUID for the user
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
                 await _userService.CreateUserAsync(user);
+
                 var mappedUser = _userService.MapToDTO(user);
                 var response = new ApiResponse<UserDTO>(
                     success: true,
@@ -127,10 +128,10 @@ namespace Myapp.Users
                 if (id != user.Id){
                     var notFound = new ApiResponse<User>(
                         success: false,
-                        message: "User is not found, verify the ID please",
+                        message: "User ID mismatch.",
                         data: null
                     );
-                    return NotFound(notFound);
+                    return BadRequest(notFound);
                 }
                 await _userService.UpdateUserAsync(id, user);
                 var mappedUser = _userService.MapToDTO(user);
@@ -170,11 +171,12 @@ namespace Myapp.Users
                     );
                     return NotFound(notFound);
                 }
-                var mappedUser = _userService.MapToDTO(usr);
+                await _userService.DeleteUserAsync(id);
+                
                 var response = new ApiResponse<UserDTO>(
                     success: true,
                     message: "User deleted successfully",
-                    data: mappedUser
+                    data: null
                 );
                 return Ok(response);
 
