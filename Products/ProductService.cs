@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using MyApp.Products;
 using Microsoft.Extensions.Options;
 using Myapp.Settings;
+using MyApp.GeneralClass;
 
 namespace MyApp.Products
 {
@@ -24,13 +25,21 @@ namespace MyApp.Products
             await _products.Find<Product>(product => product.Id == id).FirstOrDefaultAsync();
 
         // Create a new product
-        public async Task CreateProductAsync(Product product)
+        public async Task<Product> CreateProductAsync(ProductRequest request)
         {
+            var product = new Product{
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                UnitPrice = request.UnitPrice,
+                Description = request.Description,
+                Supplier = request.Supplier
+            };
             product.PriceHistory.Add(new PriceChange{
                 Price = product.UnitPrice,
                 Date = DateTime.UtcNow
             });
             await _products.InsertOneAsync(product);
+            return product;
         }             
 
         // Update a product

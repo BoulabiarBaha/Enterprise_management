@@ -81,13 +81,13 @@ namespace MyApp.Products
 
         // POST: api/products
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<ProductDTO>>> CreateProduct([FromBody] Product product)
+        public async Task<ActionResult<ApiResponse<ProductDTO>>> CreateProduct([FromBody] ProductRequest request)
         {
             try
             {   
-                product.Id = Guid.NewGuid();
-                await _productService.CreateProductAsync(product);
-
+                //product.Id = Guid.NewGuid();
+                Product product;
+                product = await _productService.CreateProductAsync(request);
                 var productDTO = _productService.MapToDTO(product);
 
                 var response = new ApiResponse<ProductDTO>(

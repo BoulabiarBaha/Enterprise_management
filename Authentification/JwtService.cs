@@ -1,4 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
+using MyApp.GeneralClass;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

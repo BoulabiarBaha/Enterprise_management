@@ -37,7 +37,7 @@ namespace MyApp.Controllers
             }
 
             // Generate JWT
-            var token = _jwtService.GenerateToken(user.Id.ToString(), user.Username, user.Role);
+            var token = _jwtService.GenerateToken(user.Id.ToString(), user.Username, user.Role );
 
             var response = new ApiResponse<string>(
                 success: true,
@@ -49,20 +49,20 @@ namespace MyApp.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<ActionResult<ApiResponse<UserDTO>>> Signup([FromBody] User user){
+        public async Task<ActionResult<ApiResponse<UserDTO>>> Signup([FromBody] SignupRequest request){
             try{
                 // Validate required fields
-                if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.PasswordHash))
+                if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 {
                     var missingResponse = new ApiResponse<User>(
                         success: false,
-                        message: "All fields are required.",
+                        message: "Username, Email, and Password fields are required.",
                         data: null
                     );
                     return BadRequest(missingResponse);
                 }
                 // Validate email format
-                if (!IsValidEmail(user.Email))
+                if (!IsValidEmail(request.Email))
                 {
                     var invalidEmailResponse = new ApiResponse<User>(
                         success: false,
@@ -72,7 +72,7 @@ namespace MyApp.Controllers
                     return BadRequest(invalidEmailResponse);
                 }
                 // Check if the user already exists
-                var existingUser = await _userService.GetUserByEmailAsync(user.Email);
+                var existingUser = await _userService.GetUserByEmailAsync(request.Email);
                 if (existingUser != null)
                 {
                     var duplicateUserResponse = new ApiResponse<User>(
@@ -82,8 +82,13 @@ namespace MyApp.Controllers
                     );
                     return Conflict(duplicateUserResponse);
                 }
-                user.Id = Guid.NewGuid();
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+                var user = new User{
+                    Id = Guid.NewGuid(),
+                    Email = request.Email,
+                    Username = request.Username,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Role = "user"
+                };
                 await _userService.CreateUserAsync(user);
                 var mappedUser = _userService.MapToDTO(user);
                 var response = new ApiResponse<UserDTO>(

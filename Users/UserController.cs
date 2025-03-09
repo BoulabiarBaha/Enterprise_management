@@ -22,7 +22,7 @@ namespace Myapp.Users
         }
 
         // GET: api/users
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<ActionResult<List<UserDTO>>> GetUsers()
         {
@@ -50,7 +50,7 @@ namespace Myapp.Users
         }
         
         // GET: api/users/{id}
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<UserDTO>>> GetUser(Guid id)
         {
@@ -89,7 +89,7 @@ namespace Myapp.Users
         }
 
         // POST: api/users
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<ApiResponse<UserDTO>>> CreateUser([FromBody] User user)
         {
@@ -120,7 +120,7 @@ namespace Myapp.Users
         }
 
         // PUT: api/users/{id}
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<ApiResponse<UserDTO>>> UpdateUser(Guid id, User user)
         {
@@ -155,7 +155,7 @@ namespace Myapp.Users
         }
 
         // DELETE: api/users/{id}
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<ApiResponse<UserDTO>>> DeleteUser(Guid id)
         {
