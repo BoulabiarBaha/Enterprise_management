@@ -51,17 +51,20 @@ namespace MyApp.Products
             {
                 throw new Exception("Product not found.");
             }
-
+            // copy the priceHistory
+            foreach(var item in existingProduct.PriceHistory) 
+            {
+                product.PriceHistory.Add(item);
+            }
             // Check if the unitPrice has changed
             if (existingProduct.UnitPrice != product.UnitPrice)
-            {
+            {   
                 product.PriceHistory.Add(new PriceChange
                 {
                     Price = existingProduct.UnitPrice,
                     Date = DateTime.UtcNow
                 });
             }
-
             // Update the product
             await _products.ReplaceOneAsync(p => p.Id == id, product);
         }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.GeneralClass;
 
@@ -15,6 +16,7 @@ namespace MyApp.Products
         }
 
         // GET: api/products
+        [Authorize(Roles = "user,admin")]
         [HttpGet]
         public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetProducts()
         {
@@ -42,6 +44,7 @@ namespace MyApp.Products
         }
 
         // GET: api/products/{id}
+        [Authorize(Roles = "user,admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<ProductDTO>>> GetProduct(Guid id)
         {
@@ -80,6 +83,7 @@ namespace MyApp.Products
         }
 
         // POST: api/products
+        [Authorize(Roles = "user,admin")]
         [HttpPost]
         public async Task<ActionResult<ApiResponse<ProductDTO>>> CreateProduct([FromBody] ProductRequest request)
         {
@@ -109,6 +113,7 @@ namespace MyApp.Products
         }
 
         // PUT: api/products/{id}
+        [Authorize(Roles = "user,admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<ProductDTO>>> UpdateProduct(Guid id, [FromBody] Product product)
         {
@@ -147,6 +152,7 @@ namespace MyApp.Products
         }
 
         // DELETE: api/products/{id}
+        [Authorize(Roles = "user,admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteProduct(Guid id)
         {
