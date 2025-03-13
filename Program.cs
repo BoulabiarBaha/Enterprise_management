@@ -12,6 +12,7 @@ using MyApp.Authentification;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using MyApp.Products;
+using Myapp.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,7 @@ builder.Services.AddSingleton<IMongoClient>(s =>
 // Register the UserService
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<ProductService>();
+builder.Services.AddSingleton<ClientService>();
 
 // Add controllers
 builder.Services.AddControllers();

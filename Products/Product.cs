@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace MyApp.Products
 {
     public class Product
