@@ -16,7 +16,7 @@ namespace Myapp.Models
         public string Address { get; set; } ="";
         public List<Guid> TransactionIds { get; set; } = new List<Guid>();
         public List<Guid> BillingIds { get; set; } = new List<Guid>();
-        public decimal Value { get; set; }
+        public double Value { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
@@ -34,7 +34,7 @@ namespace Myapp.Models
         public string Address { get; set; } ="";
         public List<Guid> TransactionIds { get; set; } = new List<Guid>();
         public List<Guid> BillingIds { get; set; } = new List<Guid>();
-        public decimal Value { get; set; }
+        public double Value { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
