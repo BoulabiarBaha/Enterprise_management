@@ -5,4 +5,4 @@ Workflow:
 HOW TO RUN THE PROJECT:
 1- Build Myapp.sln
 2- dotnet run
-3- Navigate to "http://localhost:<port>/swagger"
+3- Navigate to "http://localhost:port/swagger"
