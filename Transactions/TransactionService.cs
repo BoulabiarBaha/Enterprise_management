@@ -58,7 +58,7 @@ namespace Myapp.Transactions
             };
 
             // Enregistrer la Billing
-            var createdBilling = await _billingService.CreateBillingAsync(billing);
+            var createdBilling = await _billingService.CreateBillingAsyncAutomatic(billing);
 
             // Ajouter l'ID de la Billing à la Transaction
             transaction.BillingId = createdBilling.Id;
@@ -81,6 +81,18 @@ namespace Myapp.Transactions
         // Récupérer une transaction par ID
         public async Task<Transaction> GetTransactionAsync(Guid id) =>
             await _transactions.Find(t => t.Id == id).FirstOrDefaultAsync();
+
+        // Modifier une transaction
+        public async Task UpdateTransactionAsync(Guid id, Transaction transaction)
+        {
+            // Get the existing transaction
+            var existingTransaction = await _transactions.Find(t => t.Id == id).FirstOrDefaultAsync();
+            if (existingTransaction == null)
+            {
+                throw new Exception("Transaction not found.");
+            }
+            await _transactions.ReplaceOneAsync(c => c.Id == id, transaction);
+        }
 
         // Supprimer une transaction
         public async Task DeleteTransactionAsync(Guid id) //Supprimer Billing + TransactionIds et BillingIds du clt

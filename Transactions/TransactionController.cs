@@ -25,7 +25,6 @@ namespace Myapp.Transactions
             {
                 var transaction = new Transaction{
                     ClientId = transactionReq.ClientId,
-                    BillingId = transactionReq.BillingId
                 };
                 transactionReq.SoldProducts.ForEach( item => transaction.SoldProducts.Add(item));
                 var createdTransaction = await _transactionService.CreateTransactionAsync(transaction);

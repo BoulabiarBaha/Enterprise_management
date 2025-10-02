@@ -125,8 +125,23 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://example.com",
+                                           "http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+                      });
+});
+
 var app = builder.Build();
 
+
+
+app.UseCors(MyAllowSpecificOrigins);
 // Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();

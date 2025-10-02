@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-using MyApp.GeneralClass;
-
 namespace Myapp.Users
 {
     public class User

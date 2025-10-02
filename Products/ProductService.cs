@@ -59,11 +59,15 @@ namespace MyApp.Products
             // Check if the unitPrice has changed
             if (existingProduct.UnitPrice != product.UnitPrice)
             {   
-                product.PriceHistory.Add(new PriceChange
+                if (existingProduct.UnitPrice != existingProduct.PriceHistory.Last().Price)
                 {
-                    Price = existingProduct.UnitPrice,
-                    Date = DateTime.UtcNow
-                });
+                    product.PriceHistory.Add(new PriceChange
+                    {
+                        Price = existingProduct.UnitPrice,
+                        Date = DateTime.UtcNow
+                    });
+                }
+
             }
             // Update the product
             await _products.ReplaceOneAsync(p => p.Id == id, product);
