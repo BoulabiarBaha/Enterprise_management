@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Myapp.GeneralClass;
 using Myapp.Models;
 using MyApp.GeneralClass;
+using MyApp.Products;
+
 
 namespace Myapp.Transactions
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TransactionsController : ControllerBase
+    public class TransactionsController : BaseController
     {
         private readonly TransactionService _transactionService;
 
@@ -26,7 +29,9 @@ namespace Myapp.Transactions
                 var transaction = new Transaction{
                     ClientId = transactionReq.ClientId,
                 };
+                transaction.CreatedBy = GetCurrentUserId();
                 transactionReq.SoldProducts.ForEach( item => transaction.SoldProducts.Add(item));
+
                 var createdTransaction = await _transactionService.CreateTransactionAsync(transaction);
                 var mappedTransaction = _transactionService.MapToTransactionDTO(createdTransaction);
                 var response = new ApiResponse<TransactionDTO>(
@@ -47,14 +52,15 @@ namespace Myapp.Transactions
             }
         }
 
-        // GET: api/transactions
+        // GET: api/my-transactions
         [Authorize(Roles = "user,admin")]
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse<List<TransactionDTO>>>> GetTransactions()
+        [HttpGet("my-transactions")]
+        public async Task<ActionResult<ApiResponse<List<TransactionDTO>>>> GetMyTransactions()
         {
             try
             {
-                var transactions = await _transactionService.GetTransactionsAsync();
+                var userId = GetCurrentUserId();
+                var transactions = await _transactionService.GetMyTransactionsAsync(userId);
                 var transactionDtos = _transactionService.MapToListDTOs(transactions);
                 var response = new ApiResponse<List<TransactionDTO>>(
                     success: true,
@@ -81,12 +87,13 @@ namespace Myapp.Transactions
         {
             try
             {
+                var userId = GetCurrentUserId();
                 var transaction = await _transactionService.GetTransactionAsync(id);
-                if (transaction == null)
+                if (transaction == null || transaction.CreatedBy != userId)
                 {
                     var notFoundResponse = new ApiResponse<TransactionDTO>(
                         success: false,
-                        message: "Transaction not found.",
+                        message: "Transaction not found or access denied.",
                         data: null
                     );
                     return BadRequest(notFoundResponse);
@@ -117,6 +124,18 @@ namespace Myapp.Transactions
         {
             try
             {
+                var userId = GetCurrentUserId();
+
+                var transaction = await _transactionService.GetTransactionAsync(userId);
+                if (transaction == null || transaction.CreatedBy != userId)
+                {
+                    var notFoundResponse = new ApiResponse<string>(
+                        success: false,
+                        message: "Transaction not found or access denied.",
+                        data: null
+                    );
+                    return NotFound(notFoundResponse);
+                }
                 await _transactionService.DeleteTransactionAsync(id);
                 return NoContent();
             }

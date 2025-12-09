@@ -11,6 +11,7 @@ namespace Myapp.Models
         public double TotalPrice { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public Guid BillingId { get; set; } // Gardé vide pour le moment
+        public Guid CreatedBy { get; set; }
     }
 
     public class SoldProduct
@@ -29,5 +30,6 @@ namespace Myapp.Models
         public double TotalPrice { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public Guid BillingId { get; set; } // Gardé vide pour le moment
+        public Guid CreatedBy { get; set; }
     }
 }

@@ -8,6 +8,7 @@ namespace MyApp.Products
         public List<PriceChange> PriceHistory { get; set; } = new List<PriceChange>();
         public string Description { get; set; } = "";
         public required string Supplier { get; set; }
+        public Guid CreatedBy { get; set; }
     }
 
     public class PriceChange
@@ -24,6 +25,7 @@ namespace MyApp.Products
         public List<PriceChangeDTO> PriceHistory { get; set; } = new List<PriceChangeDTO>();
         public required string Description { get; set; }
         public required string Supplier { get; set; }
+        public Guid CreatedBy { get; set; }
     }
 
     public class PriceChangeDTO

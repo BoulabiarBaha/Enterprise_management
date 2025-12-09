@@ -1,8 +1,10 @@
-using MongoDB.Driver;
-using MyApp.Products;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Myapp.Billings;
 using Myapp.Settings;
+using Myapp.Users;
 using MyApp.GeneralClass;
+using MyApp.Products;
 
 namespace MyApp.Products
 {
@@ -16,13 +18,25 @@ namespace MyApp.Products
             _products = database.GetCollection<Product>("Products");
         }
 
-        // Get all products
-        public async Task<List<Product>> GetProductsAsync() =>
-            await _products.Find(product => true).ToListAsync();
+        // Get all products (only for admin)
+        public async Task<List<Product>> GetProductsAsync()
+        {
+            return await _products.Find(p => true).ToListAsync();
+
+        }
+
+        // Get all user products
+        public async Task<List<Product>> GetMyProductsAsync(Guid userId)
+        {
+            return await _products.Find(p => p.CreatedBy == userId).ToListAsync();
+
+        }
+           
 
         // Get a product by ID
         public async Task<Product> GetProductByIdAsync(Guid id) =>
             await _products.Find<Product>(product => product.Id == id).FirstOrDefaultAsync();
+
 
         // Create a new product
         public async Task<Product> CreateProductAsync(ProductRequest request)
@@ -32,7 +46,8 @@ namespace MyApp.Products
                 Name = request.Name,
                 UnitPrice = request.UnitPrice,
                 Description = request.Description,
-                Supplier = request.Supplier
+                Supplier = request.Supplier,
+                CreatedBy = request.CreatedBy
             };
             product.PriceHistory.Add(new PriceChange{
                 Price = product.UnitPrice,
@@ -47,10 +62,7 @@ namespace MyApp.Products
         {
             // Get the existing product
             var existingProduct = await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
-            if (existingProduct == null)
-            {
-                throw new Exception("Product not found.");
-            }
+     
             // copy the priceHistory
             foreach(var item in existingProduct.PriceHistory) 
             {
@@ -91,7 +103,8 @@ namespace MyApp.Products
                     Date = p.Date
                 }).ToList(),
                 Description = product.Description,
-                Supplier = product.Supplier
+                Supplier = product.Supplier,
+                CreatedBy = product.CreatedBy,
             };
         }
 

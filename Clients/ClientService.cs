@@ -1,7 +1,8 @@
-using MongoDB.Driver;
-using Myapp.Settings;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using Myapp.Models;
+using Myapp.Settings;
+using MyApp.Products;
 
 
 namespace Myapp.Clients
@@ -21,6 +22,12 @@ namespace Myapp.Clients
 
         public async Task<Client> GetClientAsync(Guid id) =>
             await _clients.Find(c => c.Id == id).FirstOrDefaultAsync();
+
+        public async Task<List<Client>> GetMyClientsAsync(Guid userId)
+        {
+                return await _clients.Find(c => c.CreatedBy == userId).ToListAsync();
+
+        }
 
         public async Task CreateClientAsync(Client client) =>
             await _clients.InsertOneAsync(client);

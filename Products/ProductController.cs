@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Myapp.GeneralClass;
+using Myapp.Users;
 using MyApp.GeneralClass;
 
 namespace MyApp.Products
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductsController : ControllerBase
+    public class ProductsController : BaseController
     {
         private readonly ProductService _productService;
 
@@ -15,9 +17,9 @@ namespace MyApp.Products
             _productService = productService;
         }
 
-        // GET: api/products
-        [Authorize(Roles = "user,admin")]
-        [HttpGet]
+       //GET: api/products
+       [Authorize(Roles = "admin")]
+       [HttpGet]
         public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetProducts()
         {
             try
@@ -43,6 +45,40 @@ namespace MyApp.Products
             }
         }
 
+
+
+        // GET: api/products
+        [Authorize(Roles = "user,admin")]
+        [HttpGet("my-products")]
+        public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetMyProducts()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var products = await _productService.GetMyProductsAsync(userId);
+                
+                var productDTOs = _productService.MapToListDTOs(products);
+
+                var response = new ApiResponse<List<ProductDTO>>(
+                    success: true,
+                    message: "Products retrieved successfully.",
+                    data: productDTOs
+                );
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<List<ProductDTO>>(
+                    success: false,
+                    message: $"An error occurred: {ex.Message}",
+                    data: null
+                );
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+
+
         // GET: api/products/{id}
         [Authorize(Roles = "user,admin")]
         [HttpGet("{id}")]
@@ -50,17 +86,19 @@ namespace MyApp.Products
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id);
+                var userId = GetCurrentUserId();
 
-                if (product == null)
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null || product.CreatedBy != userId)
                 {
                     var notFoundResponse = new ApiResponse<ProductDTO>(
                         success: false,
-                        message: "Product not found.",
+                        message: "Product not found or access denied.",
                         data: null
                     );
                     return BadRequest(notFoundResponse);
                 }
+
 
                 var productDTO = _productService.MapToDTO(product);
 
@@ -91,6 +129,10 @@ namespace MyApp.Products
             {   
                 //product.Id = Guid.NewGuid();
                 Product product;
+
+                var userId = GetCurrentUserId();
+                request.CreatedBy = userId;
+
                 product = await _productService.CreateProductAsync(request);
                 var productDTO = _productService.MapToDTO(product);
 
@@ -129,6 +171,19 @@ namespace MyApp.Products
                     return BadRequest(badRequestResponse);
                 }
 
+                var userId = GetCurrentUserId();
+
+                var existingProduct = await _productService.GetProductByIdAsync(product.Id);
+                if (existingProduct == null || existingProduct.CreatedBy != userId)
+                {
+                    var notFoundResponse = new ApiResponse<ProductDTO>(
+                         success: false,
+                         message: "Product not found or access denied.",
+                         data: null
+                    );
+                    return BadRequest(notFoundResponse);
+                }
+
                 await _productService.UpdateProductAsync(id, product);
 
                 var productDTO = _productService.MapToDTO(product);
@@ -158,13 +213,14 @@ namespace MyApp.Products
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id);
+                var userId = GetCurrentUserId();
 
-                if (product == null)
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null || product.CreatedBy != userId)
                 {
                     var notFoundResponse = new ApiResponse<string>(
                         success: false,
-                        message: "Product not found.",
+                        message: "Product not found or access denied.",
                         data: null
                     );
                     return NotFound(notFoundResponse);

@@ -1,6 +1,8 @@
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Myapp.Settings;
-using Microsoft.Extensions.Options;
+using MyApp.GeneralClass;
+using System.Security.Claims;
 
 namespace Myapp.Users
 {
@@ -87,6 +89,8 @@ namespace Myapp.Users
             //Delete the user
             await _users.DeleteOneAsync(user => user.Id == id);
         }
-            
-    }
+
+    
+
+}
 }

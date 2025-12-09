@@ -78,6 +78,12 @@ namespace Myapp.Transactions
         public async Task<List<Transaction>> GetTransactionsAsync() =>
             await _transactions.Find(_ => true).ToListAsync();
 
+        // Récupérer toutes les transactions
+        public async Task<List<Transaction>> GetMyTransactionsAsync(Guid userId)
+        {
+            return await _transactions.Find(t => t.CreatedBy == userId).ToListAsync();
+        }
+
         // Récupérer une transaction par ID
         public async Task<Transaction> GetTransactionAsync(Guid id) =>
             await _transactions.Find(t => t.Id == id).FirstOrDefaultAsync();
@@ -109,7 +115,8 @@ namespace Myapp.Transactions
                 ClientId = transaction.ClientId,
                 TotalPrice = transaction.TotalPrice,
                 Date = transaction.Date,
-                BillingId = transaction.BillingId
+                BillingId = transaction.BillingId,
+                CreatedBy = transaction.CreatedBy
             };
             transaction.SoldProducts.ForEach( item => mappedTransactionDTO.SoldProducts.Add(item));
             return mappedTransactionDTO;

@@ -1,16 +1,18 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using BCrypt.Net;
-using MyApp.GeneralClass;
-using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Myapp.GeneralClass;
+using MyApp.GeneralClass;
+using System;
+using System.Security.Claims;
 
 namespace Myapp.Users
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private readonly UserService _userService;
         private readonly ILogger<UsersController> _logger;
@@ -192,5 +194,65 @@ namespace Myapp.Users
             }
 
         }
+
+
+        // GET: api/users/me
+        [Authorize(Roles = "user,admin")]
+        [HttpGet("me")]
+        public async Task<ActionResult<ApiResponse<UserDTO>>> GetCurrentUser()
+        {
+            try
+            {
+                _logger.LogInformation("GET /api/users/me called");
+                var userId = GetCurrentUserId();
+
+                var user = await _userService.GetUserByIdAsync(userId);
+
+                if (user == null)
+                {
+                    var notFoundResponse = new ApiResponse<UserDTO>(
+                        success: false,
+                        message: "User not found",
+                        data: null
+                    );
+                    return NotFound(notFoundResponse);
+                }
+
+
+                var mappedUser = _userService.MapToDTO(user);
+                var response = new ApiResponse<UserDTO>(
+                    success: true,
+                    message: "User retrieved successfully",
+                    data: mappedUser
+                );
+                return Ok(response);
+
+            }
+
+            catch (UnauthorizedAccessException ex)
+            {
+                var unauthorizedResponse = new ApiResponse<UserDTO>(
+                    success: false,
+                    message: ex.Message,
+                    data: null
+                );
+                return Unauthorized(unauthorizedResponse);
+            }
+            catch (Exception ex)
+            {
+
+                var errorResponse = new ApiResponse<User>(
+                    success: false,
+                    message: $"An error occurred: {ex.Message}",
+                    data: null
+                );
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+
+        }
+
+
+
+
     }
 }
