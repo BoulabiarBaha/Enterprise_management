@@ -40,6 +40,7 @@ namespace Myapp.Clients
             {
                 throw new Exception("Client not found.");
             }
+            client.CreatedBy = existingClient.CreatedBy;
             client.CreatedAt = existingClient.CreatedAt;
             client.UpdatedAt = DateTime.UtcNow;
             await _clients.ReplaceOneAsync(c => c.Id == id, client);
@@ -95,6 +96,7 @@ namespace Myapp.Clients
                 Tel = client.Tel,
                 Address = client.Address,
                 Value = client.Value,
+                CreatedBy = client.CreatedBy,
                 CreatedAt = client.CreatedAt,
                 UpdatedAt = client.UpdatedAt
             };
