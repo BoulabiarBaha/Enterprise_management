@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Myapp.GeneralClass;
 using Myapp.Models;
 using MyApp.GeneralClass;
-using MyApp.Products;
-
 
 namespace Myapp.Transactions
 {
@@ -126,7 +124,7 @@ namespace Myapp.Transactions
             {
                 var userId = GetCurrentUserId();
 
-                var transaction = await _transactionService.GetTransactionAsync(userId);
+                var transaction = await _transactionService.GetTransactionAsync(id);
                 if (transaction == null || transaction.CreatedBy != userId)
                 {
                     var notFoundResponse = new ApiResponse<string>(

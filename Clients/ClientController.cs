@@ -115,9 +115,29 @@ namespace Myapp.Clients
         [HttpPost]
         public async Task<ActionResult<Client>> CreateClient([FromBody] Client client)
         {
-            client.CreatedBy = GetCurrentUserId();
-            await _clientService.CreateClientAsync(client);
-            return CreatedAtAction(nameof(GetClient), new { id = client.Id }, client);
+            try
+            {
+                client.CreatedBy = GetCurrentUserId();
+                await _clientService.CreateClientAsync(client);
+
+                var clientDTO = _clientService.MapToClientDTO(client);
+                var response = new ApiResponse<ClientDTO>(
+                    success: true,
+                    message: "Client created successfully.",
+                    data: clientDTO
+                );
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<ClientDTO>(
+                    success: false,
+                    message: $"An error occurred: {ex.Message}",
+                    data: null
+                );
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
         }
 
         // PUT: api/clients/{id}

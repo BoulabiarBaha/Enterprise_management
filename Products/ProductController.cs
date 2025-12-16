@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Myapp.GeneralClass;
-using Myapp.Users;
 using MyApp.GeneralClass;
 
 namespace MyApp.Products
