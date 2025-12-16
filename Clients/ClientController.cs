@@ -250,21 +250,40 @@ namespace Myapp.Clients
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteClient(Guid id)
         {
-            var userId = GetCurrentUserId();
-
-            var existingClient = await _clientService.GetClientAsync(id);
-            if (existingClient == null || existingClient.CreatedBy != userId)
+            try
             {
-                var notFoundResponse = new ApiResponse<ProductDTO>(
-                     success: false,
-                     message: "Client not found or access denied.",
-                     data: null
-                );
-                return BadRequest(notFoundResponse);
-            }
+                var userId = GetCurrentUserId();
 
-            await _clientService.DeleteClientAsync(id);
-            return NoContent();
+                var existingClient = await _clientService.GetClientAsync(id);
+                if (existingClient == null || existingClient.CreatedBy != userId)
+                {
+                    var notFoundResponse = new ApiResponse<ProductDTO>(
+                         success: false,
+                         message: "Client not found or access denied.",
+                         data: null
+                    );
+                    return BadRequest(notFoundResponse);
+                }
+
+                await _clientService.DeleteClientAsync(id);
+
+                var response = new ApiResponse<string>(
+                    success: true,
+                    message: "Client deleted successfully.",
+                    data: null
+                );
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponse<string>(
+                    success: false,
+                    message: $"An error occurred: {ex.Message}",
+                    data: null
+                );
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
         }
+            
     }
 }
