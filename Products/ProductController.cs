@@ -46,7 +46,7 @@ namespace MyApp.Products
 
 
 
-        // GET: api/products
+        // GET: api/products/my-products
         [Authorize(Roles = "user,admin")]
         [HttpGet("my-products")]
         public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetMyProducts()

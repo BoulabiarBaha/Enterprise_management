@@ -15,6 +15,7 @@ using MyApp.Products;
 using Myapp.Clients;
 using Myapp.Transactions;
 using Myapp.Billings;
+using Myapp.DashboardStats;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,7 +89,7 @@ builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<ClientService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<BillingService>();
-
+builder.Services.AddScoped<DashboardService>();
 
 // Add controllers
 builder.Services.AddControllers();
