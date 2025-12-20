@@ -2,6 +2,7 @@
 {
     public class UserStatsDto
     {
+        public int TotalClients { get; set; }
         public int TotalProducts { get; set; }
         public int ActiveClients { get; set; }
         public int TotalTransactions { get; set; }

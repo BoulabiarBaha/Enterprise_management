@@ -52,6 +52,7 @@ namespace Myapp.DashboardStats
 
             return new DashboardStatsDto
             {
+                TotalClients = totalClients,
                 TotalProducts = totalProducts,
                 ActiveClients = activeClients,
                 TotalTransactions = totalTransactions,
