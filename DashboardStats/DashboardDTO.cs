@@ -13,6 +13,7 @@
     {
         public double AverageTransactionValue { get; set; }
         public double ClientConversionRate { get; set; }
+        public double RepurchaseRate { get; set; }
         public List<MonthlyRevenueDto>? MonthlyRevenue { get; set; }
     }
 

@@ -49,6 +49,7 @@ namespace Myapp.DashboardStats
             // Calculate additional metrics
             var conversionRate = totalClients > 0 ?
                 (double)activeClients / totalClients * 100 : 0;
+             var repurchaseRate = (totalTransactions - activeClients) / totalTransactions * 100;
 
             return new DashboardStatsDto
             {
@@ -59,7 +60,8 @@ namespace Myapp.DashboardStats
                 TotalRevenue = totalRevenue,
                 AverageTransactionValue = avgTransaction,
                 ClientConversionRate = conversionRate,
-                MonthlyRevenue = monthlyRevenue
+                MonthlyRevenue = monthlyRevenue,
+                RepurchaseRate = repurchaseRate,
             };
         }
 
@@ -99,7 +101,7 @@ namespace Myapp.DashboardStats
 
         private async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync(Guid userId)
         {
-            // Get revenue grouped by month for the last 6 months
+            // Get revenue grouped by month for the last 3 months
             var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
             var filter = Builders<Transaction>.Filter.And(
@@ -133,11 +135,8 @@ namespace Myapp.DashboardStats
             var count = await _clientsCollection.CountDocumentsAsync(filter);
             return (int)count;
         }
+
     }
-
-
-    
-    
 
     
 }
