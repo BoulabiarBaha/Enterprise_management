@@ -122,7 +122,7 @@ namespace Myapp.DashboardStats
                     Revenue = g.Sum(t => t.TotalPrice)
                 })
                 .OrderByDescending(m => m.Month)
-                .Take(6)
+                .Take(3)
                 .ToList();
 
             return monthlyRevenue;

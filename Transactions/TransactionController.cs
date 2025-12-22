@@ -118,7 +118,7 @@ namespace Myapp.Transactions
         // DELETE: api/transactions/{id}
         [Authorize(Roles = "user,admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTransaction(Guid id)
+        public async Task<ActionResult<ApiResponse<string>>> DeleteTransaction(Guid id)
         {
             try
             {
@@ -135,7 +135,13 @@ namespace Myapp.Transactions
                     return NotFound(notFoundResponse);
                 }
                 await _transactionService.DeleteTransactionAsync(id);
-                return NoContent();
+                
+                var response = new ApiResponse<string>(
+                   success: true,
+                   message: "Transaction deleted successfully.",
+                   data: null
+                );
+                return Ok(response);
             }
             catch (Exception ex)
             {
