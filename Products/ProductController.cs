@@ -47,7 +47,7 @@ namespace MyApp.Products
 
 
         // GET: api/products/my-products
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user,admin,service")]
         [HttpGet("my-products")]
         public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetMyProducts()
         {
@@ -120,7 +120,7 @@ namespace MyApp.Products
         }
 
         // POST: api/products
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user,admin,service")]
         [HttpPost]
         public async Task<ActionResult<ApiResponse<ProductDTO>>> CreateProduct([FromBody] ProductRequest request)
         {

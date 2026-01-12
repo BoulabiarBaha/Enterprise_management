@@ -45,7 +45,7 @@ namespace Myapp.Clients
 
 
         //GET: api/clients
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user,admin,service")]
         [HttpGet("my-clients")]
         public async Task<ActionResult<ApiResponse<List<ClientDTO>>>> GetMyClients()
         {
@@ -111,7 +111,7 @@ namespace Myapp.Clients
         }
 
         //POST: api/clients
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user,admin,service")]
         [HttpPost]
         public async Task<ActionResult<Client>> CreateClient([FromBody] Client client)
         {

@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Myapp.Settings;
-using MyApp.GeneralClass;
-using System.Security.Claims;
 
 namespace Myapp.Users
 {
@@ -23,6 +21,7 @@ namespace Myapp.Users
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
+                Phone = user.Phone,
                 Role = user.Role
             };
         }
@@ -34,6 +33,7 @@ namespace Myapp.Users
                     Id = e.Id,
                     Username = e.Username,
                     Email = e.Email,
+                    Phone = e.Phone,    
                     Role = e.Role
                 };
                 userDTOs.Add(userDTO);

@@ -1,6 +1,4 @@
 using Microsoft.IdentityModel.Tokens;
-using MyApp.GeneralClass;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -64,5 +62,33 @@ namespace MyApp.Authentification
 
             return tokenHandler.ValidateToken(token, validationParameters, out _);
         }
+
+
+        public string GenerateServiceToken(string serviceName, int expiryInDays)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, serviceName), // e.g. "n8n"
+                new Claim(ClaimTypes.Role, "service"),
+                new Claim("token_type", "service"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _issuer,
+                audience: _audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(expiryInDays), 
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
+
     }
 }

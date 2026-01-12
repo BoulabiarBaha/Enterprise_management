@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Myapp.Users;
 using MyApp.Authentification;
 using MyApp.GeneralClass;
-using BCrypt.Net;
 
 namespace MyApp.Controllers
 {
@@ -86,6 +85,7 @@ namespace MyApp.Controllers
                     Id = Guid.NewGuid(),
                     Email = request.Email,
                     Username = request.Username,
+                    Phone = request.Phone,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     Role = "user"
                 };

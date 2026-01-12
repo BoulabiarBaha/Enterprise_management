@@ -1,12 +1,7 @@
-using BCrypt.Net;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Myapp.GeneralClass;
 using MyApp.GeneralClass;
-using System;
-using System.Security.Claims;
 
 namespace Myapp.Users
 {
