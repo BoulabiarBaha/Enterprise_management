@@ -49,6 +49,10 @@ namespace Myapp.Users
         public async Task<User> GetUserByIdAsync(Guid id) =>
             await _users.Find<User>(user => user.Id == id).FirstOrDefaultAsync();
 
+        // Get a user by phone number
+        public async Task<User> GetUserByPhoneAsync(string phone) =>
+            await _users.Find<User>(user => user.Phone == phone).FirstOrDefaultAsync();
+
         // Create a new user
         public async Task CreateUserAsync(User user) =>
             await _users.InsertOneAsync(user);

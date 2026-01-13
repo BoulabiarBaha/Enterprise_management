@@ -247,7 +247,47 @@ namespace Myapp.Users
         }
 
 
+        // GET: api/users/resolve-by-phone/{phone-number}
+        [Authorize(Roles = "admin,service")]
+        [HttpGet("/resolve-by-phone/{phone}")]
+        public async Task<ActionResult<ApiResponse<UserDTO>>> GetUserByphone(string phone)
+        {
+            try
+            {
+                _logger.LogInformation("GET /api/users/resolve-by-phone called");
+                var user = await _userService.GetUserByPhoneAsync(phone);
 
+                if (user == null)
+                {
+                    var badResponse = new ApiResponse<User>(
+                    success: false,
+                    message: "User not found, verify the phone number please",
+                    data: user
+                );
+                    return BadRequest(badResponse);
+                }
+
+                var mappedUser = _userService.MapToDTO(user);
+                var response = new ApiResponse<UserDTO>(
+                    success: true,
+                    message: "User retrieved successfully",
+                    data: mappedUser
+                );
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+
+                var errorResponse = new ApiResponse<User>(
+                    success: false,
+                    message: $"An error occurred: {ex.Message}",
+                    data: null
+                );
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+
+        }
 
     }
 }

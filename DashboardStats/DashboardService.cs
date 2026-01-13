@@ -49,7 +49,10 @@ namespace Myapp.DashboardStats
             // Calculate additional metrics
             var conversionRate = totalClients > 0 ?
                 (double)activeClients / totalClients * 100 : 0;
-             var repurchaseRate = (totalTransactions - activeClients) / totalTransactions * 100;
+
+            var repurchaseClients = await GetRepurchaseClientsAsync(userId);
+            var repurchaseRate = (double)activeClients > 0 ? repurchaseClients / activeClients * 100 : 0;
+
 
             return new DashboardStatsDto
             {
@@ -64,6 +67,26 @@ namespace Myapp.DashboardStats
                 RepurchaseRate = repurchaseRate,
             };
         }
+
+        private async Task<double> GetRepurchaseClientsAsync(Guid userId)
+        {
+            var pipeline = _transactionsCollection.Aggregate()
+                .Match(t => t.CreatedBy == userId)
+                .Group(
+                    t => t.ClientId,
+                    g => new
+                    {
+                        ClientId = g.Key,
+                        TransactionCount = g.Count()
+                    }
+                );
+
+            var clientTransactionCounts = await pipeline.ToListAsync();
+            var repurchasingClients = clientTransactionCounts.Count(c => c.TransactionCount >= 2);
+
+            return (double)repurchasingClients; 
+        }
+
 
         private async Task<int> GetTotalProductsAsync(Guid userId)
         {
