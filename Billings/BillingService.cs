@@ -22,6 +22,32 @@ namespace Myapp.Billings
         public async Task<List<Billing>> GetClientsAsync() =>
             await _billings.Find(b => true).ToListAsync();
 
+        // Générer la prochaine référence séquentielle (ex: 2026-0001, 2026-0002)
+        public async Task<string> GenerateNextReferenceAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year.ToString();
+            var prefix = $"{currentYear}-";
+
+            // Récupérer toutes les factures dont la référence commence par l'année en cours
+            var billingsThisYear = await _billings
+                .Find(b => b.Reference.StartsWith(prefix))
+                .ToListAsync();
+
+            int maxNumber = 0;
+            foreach (var b in billingsThisYear)
+            {
+                var parts = b.Reference.Split('-');
+                if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                {
+                    if (num > maxNumber)
+                        maxNumber = num;
+                }
+            }
+
+            var nextNumber = maxNumber + 1;
+            return $"{currentYear}-{nextNumber:D4}";
+        }
+
         // Créer une facture automatiquement lors de création d'une transaction
         public async Task<Billing> CreateBillingAsyncAutomatic(Billing billing)
         {

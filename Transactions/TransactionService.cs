@@ -24,7 +24,7 @@ namespace Myapp.Transactions
         }
 
         // Créer une transaction
-        public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+        public async Task<Transaction> CreateTransactionAsync(Transaction transaction, bool enableTax, double tva)
         {
             // Calculer le TotalPrice en fonction des produits vendus
             double totalPrice = 0;
@@ -46,15 +46,18 @@ namespace Myapp.Transactions
                 throw new Exception($"Client with ID {transaction.ClientId} not found.");
             }
 
+            // Générer la référence séquentielle
+            var reference = await _billingService.GenerateNextReferenceAsync();
+
             // Créer une Facture
             var billing = new Billing
             {
-                Reference = $"INV-{DateTime.UtcNow:yyyyMMdd-HHmmss}", //à changer peut etre
+                Reference = reference,
                 Date = DateTime.UtcNow,
                 TotalHT = totalPrice,
-                TVA = 0.19,
-                TotalTTC = totalPrice + totalPrice * 0.19, //pas optimale
-                EnableTax = true
+                TVA = enableTax ? tva : 0,
+                TotalTTC = enableTax ? totalPrice + totalPrice * tva : totalPrice,
+                EnableTax = enableTax
             };
 
             // Enregistrer la Billing

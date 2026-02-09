@@ -30,7 +30,7 @@ namespace Myapp.Transactions
                 transaction.CreatedBy = GetCurrentUserId();
                 transactionReq.SoldProducts.ForEach( item => transaction.SoldProducts.Add(item));
 
-                var createdTransaction = await _transactionService.CreateTransactionAsync(transaction);
+                var createdTransaction = await _transactionService.CreateTransactionAsync(transaction, transactionReq.EnableTax, transactionReq.TVA);
                 var mappedTransaction = _transactionService.MapToTransactionDTO(createdTransaction);
                 var response = new ApiResponse<TransactionDTO>(
                     success: true,
