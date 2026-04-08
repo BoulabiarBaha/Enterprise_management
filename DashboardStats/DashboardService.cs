@@ -29,7 +29,9 @@ namespace Myapp.DashboardStats
             GetActiveClientsAsync(userId),
             GetTransactionsStatsAsync(userId),
             GetMonthlyRevenueAsync(userId),
-            GetTotalClientsAsync(userId)
+            GetTotalClientsAsync(userId),
+            GetProductCoverageRateAsync(userId),
+            GetMonthlyClientsAsync(userId)
             };
 
             await Task.WhenAll(tasks);
@@ -39,12 +41,16 @@ namespace Myapp.DashboardStats
             var transactionStatsTask = (Task<(int count, double revenue, double avg)>)tasks[2];
             var monthlyRevenueTask = (Task<List<MonthlyRevenueDto>>)tasks[3];
             var totalClientsTask = (Task<int>)tasks[4];
+            var productCoverageTask = (Task<double>)tasks[5];
+            var monthlyClientsTask = (Task<List<MonthlyClientsDto>>)tasks[6];
 
             var totalProducts = await totalProductsTask;
             var totalClients = await totalClientsTask;
             var activeClients = await activeClientsTask;
             var (totalTransactions, totalRevenue, avgTransaction) = await transactionStatsTask;
             var monthlyRevenue = await monthlyRevenueTask;
+            var productCoverageRate = await productCoverageTask;
+            var monthlyClients = await monthlyClientsTask;
 
             // Calculate additional metrics
             var conversionRate = totalClients > 0 ?
@@ -53,6 +59,17 @@ namespace Myapp.DashboardStats
             var repurchaseClients = await GetRepurchaseClientsAsync(userId);
             var repurchaseRate = (double)activeClients > 0 ? repurchaseClients / activeClients * 100 : 0;
 
+            // Calculate revenue change percentage (month-over-month)
+            // List is chronological: last element = current month, second-to-last = previous month
+            var revenueChangePercent = 0.0;
+            if (monthlyRevenue.Count >= 2)
+            {
+                var currentMonth = monthlyRevenue[^1].Revenue;
+                var previousMonth = monthlyRevenue[^2].Revenue;
+                revenueChangePercent = previousMonth > 0
+                    ? ((currentMonth - previousMonth) / previousMonth) * 100
+                    : 0;
+            }
 
             return new DashboardStatsDto
             {
@@ -65,6 +82,9 @@ namespace Myapp.DashboardStats
                 ClientConversionRate = conversionRate,
                 MonthlyRevenue = monthlyRevenue,
                 RepurchaseRate = repurchaseRate,
+                ProductCoverageRate = productCoverageRate,
+                RevenueChangePercent = Math.Round(revenueChangePercent, 2),
+                MonthlyClients = monthlyClients,
             };
         }
 
@@ -124,31 +144,84 @@ namespace Myapp.DashboardStats
 
         private async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync(Guid userId)
         {
-            // Get revenue grouped by month for the last 3 months
-            var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
+            var now = DateTime.UtcNow;
 
-            var filter = Builders<Transaction>.Filter.And(
-                Builders<Transaction>.Filter.Eq(t => t.CreatedBy, userId),
-                Builders<Transaction>.Filter.Gte(t => t.Date, threeMonthsAgo)
-            );
-
+            // Get all transactions to compute cumulative revenue
+            var filter = Builders<Transaction>.Filter.Eq(t => t.CreatedBy, userId);
             var transactions = await _transactionsCollection
                 .Find(filter)
                 .Project(t => new { t.Date, t.TotalPrice })
                 .ToListAsync();
 
-            var monthlyRevenue = transactions
-                .GroupBy(t => new { t.Date.Year, t.Date.Month })
-                .Select(g => new MonthlyRevenueDto
+            // Build cumulative revenue for the last 5 months
+            var result = new List<MonthlyRevenueDto>();
+            for (int i = 4; i >= 0; i--)
+            {
+                var targetMonth = now.AddMonths(-i);
+                var endOfMonth = new DateTime(targetMonth.Year, targetMonth.Month, 1).AddMonths(1);
+                var cumulativeRevenue = transactions
+                    .Where(t => t.Date < endOfMonth)
+                    .Sum(t => t.TotalPrice);
+                result.Add(new MonthlyRevenueDto
                 {
-                    Month = $"{g.Key.Year}-{g.Key.Month:00}",
-                    Revenue = g.Sum(t => t.TotalPrice)
-                })
-                .OrderByDescending(m => m.Month)
-                .Take(3)
-                .ToList();
+                    Month = $"{targetMonth.Year}-{targetMonth.Month:00}",
+                    Revenue = cumulativeRevenue
+                });
+            }
 
-            return monthlyRevenue;
+            return result;
+        }
+
+        private async Task<double> GetProductCoverageRateAsync(Guid userId)
+        {
+            // Count total products
+            var productFilter = Builders<Product>.Filter.Eq(p => p.CreatedBy, userId);
+            var totalProducts = await _productsCollection.CountDocumentsAsync(productFilter);
+
+            if (totalProducts == 0) return 0;
+
+            // Get distinct product IDs that appear in transactions
+            var transactionFilter = Builders<Transaction>.Filter.Eq(t => t.CreatedBy, userId);
+            var transactions = await _transactionsCollection
+                .Find(transactionFilter)
+                .Project(t => t.SoldProducts)
+                .ToListAsync();
+
+            var soldProductIds = transactions
+                .SelectMany(sp => sp)
+                .Select(sp => sp.ProductId)
+                .Distinct()
+                .Count();
+
+            return (double)soldProductIds / totalProducts * 100;
+        }
+
+        private async Task<List<MonthlyClientsDto>> GetMonthlyClientsAsync(Guid userId)
+        {
+            // Get all clients created by this user (we need all to compute cumulative totals)
+            var filter = Builders<Client>.Filter.Eq(c => c.CreatedBy, userId);
+            var clients = await _clientsCollection
+                .Find(filter)
+                .Project(c => new { c.CreatedAt })
+                .ToListAsync();
+
+            // Build cumulative client count for the last 5 months
+            var now = DateTime.UtcNow;
+            var result = new List<MonthlyClientsDto>();
+
+            for (int i = 4; i >= 0; i--)
+            {
+                var targetMonth = now.AddMonths(-i);
+                var endOfMonth = new DateTime(targetMonth.Year, targetMonth.Month, 1).AddMonths(1);
+                var count = clients.Count(c => c.CreatedAt < endOfMonth);
+                result.Add(new MonthlyClientsDto
+                {
+                    Month = $"{targetMonth.Year}-{targetMonth.Month:00}",
+                    Count = count
+                });
+            }
+
+            return result;
         }
 
         // Helper method to get total clients for conversion rate

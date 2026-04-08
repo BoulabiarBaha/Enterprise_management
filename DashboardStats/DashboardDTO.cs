@@ -14,12 +14,21 @@
         public double AverageTransactionValue { get; set; }
         public double ClientConversionRate { get; set; }
         public double RepurchaseRate { get; set; }
+        public double ProductCoverageRate { get; set; }
+        public double RevenueChangePercent { get; set; }
         public List<MonthlyRevenueDto>? MonthlyRevenue { get; set; }
+        public List<MonthlyClientsDto>? MonthlyClients { get; set; }
     }
 
     public class MonthlyRevenueDto
     {
         public string? Month { get; set; }
         public double Revenue { get; set; }
+    }
+
+    public class MonthlyClientsDto
+    {
+        public string? Month { get; set; }
+        public int Count { get; set; }
     }
 }
